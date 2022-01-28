@@ -14,7 +14,7 @@ def get_files_list(path: str) -> List[Tuple[str, str]]:
 
 
 def rename_file(directory: str, old_name: str, new_name: str) -> None:
-	old_file_path = join(directory, correct_filename(old_name) )
-	new_file_path = join(directory, correct_filename(new_name) )
+	old_file_path = join(directory, old_name)
+	new_file_path = join(directory, new_name)
 
 	os.rename(old_file_path, new_file_path)
