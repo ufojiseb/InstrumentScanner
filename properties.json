@@ -1,0 +1,6 @@
+{
+	"tesseract_path": null,
+	"scores_directory": "scores",
+	"top_left_corner":		[0, 0],
+	"bottom_right_corner":	[0, 0]
+}
