@@ -9,8 +9,8 @@ def correct_filename(filename: str) -> str:
 
 
 def get_files_list(path: str) -> List[Tuple[str, str]]:
-	# returns a list of tuple containing the name of the file and its complete path
-	return [(f, join(path, f)) for f in os.listdir(path) if isfile(join(path, f)) and f != ".gitignore"]
+	# returns a list with a tuple for each pdf file, containing the name of the file and its complete path
+	return [(f, join(path, f)) for f in os.listdir(path) if isfile(join(path, f)) and f.endswith('.pdf')]
 
 
 def rename_file(directory: str, old_name: str, new_name: str) -> None:
