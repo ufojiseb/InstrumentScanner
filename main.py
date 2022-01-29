@@ -32,9 +32,13 @@ def main() -> None:
 
 		new_file_name = correct_filename( OCR.read(cropped) + ".pdf" )
 
-		rename_file(props.SCORES_DIRECTORY, file_name, new_file_name)
-		Logger.log(f'Renamed: "{file_name}" >>> "{new_file_name}"')
-
+		try:
+			rename_file(props.SCORES_DIRECTORY, file_name, new_file_name)
+			Logger.log(f'Renamed "{file_name}" >>> "{new_file_name}"')
+		except FileExistsError:
+			Logger.error(f'Could not rename "{file_name}" >>> "{new_file_name}" (destination file already exists)')
+		except FileNotFoundError:
+			Logger.error(f'Could not rename "{file_name}" >>> "{new_file_name}" (origin file does not exists)')
 
 if __name__ == "__main__":
 	main()
