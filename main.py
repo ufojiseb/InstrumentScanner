@@ -19,8 +19,6 @@ def main() -> None:
 	props.load(PROPERTIES_PATH)
 	Logger.log(f"Loaded {PROPERTIES_PATH}")
 
-	
-	OCR.initialize(props.TESSERACT_PATH)
 	path_list = get_files_list(props.SCORES_DIRECTORY)
 	Logger.log(f"Loaded pdf list: {[f[0] for f in path_list]}")
 
