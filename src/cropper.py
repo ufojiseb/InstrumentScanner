@@ -1,6 +1,7 @@
-from typing import Tuple, List
+from typing import Tuple
 from PIL import Image
-import pdf2image
+
+from src.pdf_converter import load_pages
 
 
 def load_and_crop(file_path: str, top_left_coord: Tuple[int, int], bottom_right_coord: Tuple[int, int]) -> Image:
@@ -8,11 +9,6 @@ def load_and_crop(file_path: str, top_left_coord: Tuple[int, int], bottom_right_
 	first_page = load_pages(file_path)[0]
 
 	return crop(first_page, top_left_coord, bottom_right_coord)
-
-
-def load_pages(file_path: str) -> List:
-	# converts the pages of the pdf in a list of images 
-	return pdf2image.convert_from_path(file_path)
 
 
 def crop(image: Image, top_left_coord: Tuple[int, int], bottom_right_coord: Tuple[int, int]) -> Image:
