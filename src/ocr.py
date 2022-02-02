@@ -15,6 +15,6 @@ class OCR:
 		OCR.CONFIG = config
 
 	@staticmethod
-	def read(image: Image) -> str:
+	def read(image: Image.Image) -> str:
 		# returns the text found in the image passed as parameter
 		return pytesseract.image_to_string(image, config=OCR.CONFIG)

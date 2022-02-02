@@ -2,7 +2,7 @@ from PIL import Image
 import numpy as np
 
 from src.enhancer import enhance
-from src.pdf_converter import load_pages
+from src.pdf_manager import pdf_to_images
 
 
 class Superimposer:
@@ -12,10 +12,10 @@ class Superimposer:
 	def add(self, pdf_path: str) -> None:
 		# adds the first page of a pdf to the superimposed final image
 	
-		img = load_pages(pdf_path)[0]  # takes only the first page
+		img = pdf_to_images(pdf_path)[0]  # takes only the first page
 		self.images.append( enhance(img) )
 	
-	def superimpose(self) -> Image:
+	def superimpose(self) -> Image.Image:
 		# creates and returns the superimposed image of all the pdfs passed previously
 		
 		# 'uint16' is used to avoid overflow when adding arrays

@@ -2,7 +2,7 @@ from PIL import Image
 import numpy as np
 
 
-def enhance(image: Image) -> Image:
+def enhance(image: Image.Image) -> Image.Image:
 
 	# converts image to greyscale
 	image = image.convert('L')
