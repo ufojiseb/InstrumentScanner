@@ -49,35 +49,40 @@ def main() -> None:
 
 	
 	if "s" in options:
-		# Searches all the pdf in the input directory and takes only the first one
+		# Merges all the PDFs in the scores folder in a single PDF file
 		in_dir = Config.INPUT_PDF_DIRECTORY
-
 		pdf_paths = [ join(in_dir, f) for f in os.listdir(in_dir) if isfile( join(in_dir, f) ) and f.endswith(".pdf") ]
-		
+
 		pdf_name = join(Config.INPUT_PDF_DIRECTORY, "merged.pdf")
 		merge(pdf_paths, pdf_name)
 
+		# Converts every page of the merged PDF in a PNG image
 		Splitter.set_resolution(Config.SPLITTER_RESOLUTION)
 		Splitter.convert(pdf_name, Config.IMAGES_DIRECTORY)
 
+		# Enhances every image by applying the given enhancing method (absolute, or higher contrast)
 		Enhancer.set_threshold(Config.THRESHOLD_FACTOR)
 		Enhancer.set_equalizer_threshold_range(Config.THRESHOLD_RANGE_MIN, Config.THRESHOLD_RANGE_MAX)
 		Enhancer.enhance_all(Config.IMAGES_DIRECTORY, Config.ENHANCING_METHOD)
 
+		# Groups the images in different directories
 		group(Config.IMAGES_DIRECTORY, Config.GROUP_NUMBER)
 
 	if "x" in options:
+		# Creates a superimposed image of all the PNG images
 		sup = Superimposer()
 		sup.add_groups(Config.IMAGES_DIRECTORY, Config.SUPERIMPOSED_INDEX)
 		img = sup.superimpose()
 		img.save("superimposed.png")
 
 	if "r" in options:
+		# Tries to find the two extreme red points in the superimposed image, and takes their coordinates
 		coords = find_coordinates("superimposed.png", Config.PIXEL_COLOR)
 
-		#rename_groups(Config.IMAGES_DIRECTORY, Config.SUPERIMPOSED_INDEX, Config.TOP_LEFT_CORNER, Config.BOTTOM_RIGHT_CORNER)
+		# Renames each group with the text found between the two extreme points
 		rename_groups(Config.IMAGES_DIRECTORY, Config.SUPERIMPOSED_INDEX, coords[0], coords[1])
 
+		# Creates all the PDFs, which will contain all the images in each group, and names them with the name of the group
 		PDF_Writer.create_pdfs(Config.IMAGES_DIRECTORY, Config.SCORES_DIRECTORY, Config.PAPER_FORMAT)
 
 
