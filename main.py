@@ -1,76 +1,84 @@
+from os.path import join, isfile
+import os
 import sys
-from typing import List, Tuple
 
-from src.ocr import OCR
-from src.cropper import load_and_crop
-from src.file_manager import get_files_list, rename_file, correct_filename
 from src.config import Config
 from src.logger import Logger
+from src.merger import merge
+from src.splitter import Splitter
+from src.enhancer import Enhancer
+from src.grouper import group
 from src.superimposer import Superimposer
-
-
-def superimpose(path_list: List[Tuple[str, str]]) -> None:
-	
-	sup = Superimposer()
-	
-	for tup in path_list:
-		file_name = tup[0]
-		file_path = tup[1]
-
-		Logger.log(f'Adding "{file_path}"')
-		sup.add(file_path)
-	
-	Logger.log(f"Creating superimposed image")
-	superimposed = sup.superimpose()
-	superimposed.save("superimposed.png")
-
-
-def read_and_rename(path_list: List[Tuple[str, str]]) -> None:
-	for tup in path_list:
-		file_name = tup[0]
-		file_path = tup[1]
-	
-		cropped = load_and_crop(file_path, Config.TOP_LEFT_CORNER, Config.BOTTOM_RIGHT_CORNER)
-
-		new_file_name = correct_filename( OCR.read(cropped) + ".pdf" )
-
-		try:
-			rename_file(Config.SCORES_DIRECTORY, file_name, new_file_name)
-			Logger.log(f'Renamed "{file_name}" >>> "{new_file_name}"')
-		except FileExistsError:
-			Logger.error(f'Could not rename "{file_name}" >>> "{new_file_name}" (destination file already exists)')
-		except FileNotFoundError:
-			Logger.error(f'Could not rename "{file_name}" >>> "{new_file_name}" (origin file does not exists)')
+from src.pointer import find_coordinates
+from src.reader import rename_groups
+from src.pdf_writer import PDF_Writer
 
 
 def main() -> None:
+	Config.load("config.json")
 	Logger.init_logger()
 
-	DEFAULT_MODE = "--rename"
-	CONFIG_PATH = "config.json"
 
+	invalid_parameters_flag = False
+	
 	if len(sys.argv) > 1:
-		MODE = sys.argv[1]
+		options = sys.argv[1]
+		available_options = ["s", "x", "r"]  # split, superimpose, rename
+		
+		options = options[1:]
+
+		if len(options) == 0:
+			invalid_parameters_flag = True
+
+		for ch in options:
+			if ch not in available_options:
+				invalid_parameters_flag = True
 	else:
-		MODE = DEFAULT_MODE
+		invalid_parameters_flag = True
+	
 
-	Config.load(CONFIG_PATH)
-	Logger.log(f"Loaded {CONFIG_PATH}")
-
-	path_list = get_files_list(Config.SCORES_DIRECTORY)
-	Logger.log(f"Loaded pdf list: {[f[0] for f in path_list]}")
-
-	if MODE == "--superimpose" or MODE == "-s":
-		superimpose(path_list)
-	elif MODE == "--rename" or MODE == "-r":
-		read_and_rename(path_list)
-	else:
+	if invalid_parameters_flag:
 		err_str =  "Error: invalid argument\n"
-		err_str += "Usage: python main.py [mode]\n"
-		err_str += "-s --superimpose   to create a superimposed image of all the pdfs\n"
-		err_str += "-r --rename        to read the instrument and rename all the pdfs\n"
+		err_str += "Usage: python main.py -[mode]\n"
+		err_str += "-s (split)          to separate the pdf pages in groups\n"
+		err_str += "-x (superimpose)    to create a superimposed image of all the pdfs\n"
+		err_str += "-r (rename)         to read the instrument and rename all the pdfs\n"
 
 		Logger.error(err_str)
+		exit(-1)
+
+	
+	if "s" in options:
+		# Searches all the pdf in the input directory and takes only the first one
+		in_dir = Config.INPUT_PDF_DIRECTORY
+
+		pdf_paths = [ join(in_dir, f) for f in os.listdir(in_dir) if isfile( join(in_dir, f) ) and f.endswith(".pdf") ]
+		
+		pdf_name = join(Config.INPUT_PDF_DIRECTORY, "merged.pdf")
+		merge(pdf_paths, pdf_name)
+
+		Splitter.set_resolution(Config.SPLITTER_RESOLUTION)
+		Splitter.convert(pdf_name, Config.IMAGES_DIRECTORY)
+
+		Enhancer.set_threshold(Config.THRESHOLD_FACTOR)
+		Enhancer.set_equalizer_threshold_range(Config.THRESHOLD_RANGE_MIN, Config.THRESHOLD_RANGE_MAX)
+		Enhancer.enhance_all(Config.IMAGES_DIRECTORY, Config.ENHANCING_METHOD)
+
+		group(Config.IMAGES_DIRECTORY, Config.GROUP_NUMBER)
+
+	if "x" in options:
+		sup = Superimposer()
+		sup.add_groups(Config.IMAGES_DIRECTORY, Config.SUPERIMPOSED_INDEX)
+		img = sup.superimpose()
+		img.save("superimposed.png")
+
+	if "r" in options:
+		coords = find_coordinates("superimposed.png", Config.PIXEL_COLOR)
+
+		#rename_groups(Config.IMAGES_DIRECTORY, Config.SUPERIMPOSED_INDEX, Config.TOP_LEFT_CORNER, Config.BOTTOM_RIGHT_CORNER)
+		rename_groups(Config.IMAGES_DIRECTORY, Config.SUPERIMPOSED_INDEX, coords[0], coords[1])
+
+		PDF_Writer.create_pdfs(Config.IMAGES_DIRECTORY, Config.SCORES_DIRECTORY, Config.PAPER_FORMAT)
 
 
 if __name__ == "__main__":

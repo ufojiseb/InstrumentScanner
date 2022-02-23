@@ -1,23 +1,42 @@
 from PIL import Image
 import numpy as np
 
-from src.enhancer import enhance
-from src.pdf_manager import pdf_to_images
+from os.path import join, isfile, isdir
+import os
 
+from src.logger import Logger
 
 class Superimposer:
 	def __init__(self) -> None:
 		self.images = []
 
-	def add(self, pdf_path: str) -> None:
-		# adds the first page of a pdf to the superimposed final image
+	def add(self, image_path: str) -> None:
+		# Adds the passed image to the superimposed final image.
+		# The image has to be in black and white format.
+
+		Logger.log(f'Adding "{image_path}" to superimposed image')
+
+		self.images.append( Image.open(image_path) )
 	
-		img = pdf_to_images(pdf_path)[0]  # takes only the first page
-		self.images.append( enhance(img) )
+	def add_groups(self, images_dir: str, superimposed_index: int) -> None:
+		# Adds the images to the superimposed image. Takes all the groups and
+		# for each group adds only the image specified by superimposed_index
+
+		# a list of all the folders in the images directory
+		groups_paths = [join(images_dir, d) for d in os.listdir(images_dir) if isdir( join(images_dir, d) )]
+
+		for d in groups_paths:
+			# a list of all the files in each subdirectory
+			files = [join(d, f) for f in os.listdir(d) if isfile( join(d, f) )]
+			
+			# adds the image specified in config to the superimposed image
+			self.add( files[superimposed_index] )
 	
 	def superimpose(self) -> Image.Image:
-		# creates and returns the superimposed image of all the pdfs passed previously
+		# creates and returns the superimposed image of all the images passed previously
 		
+		Logger.log(f"Creating superimposed image...")
+
 		# 'uint16' is used to avoid overflow when adding arrays
 		# (uint8 is the default, which has a range 0-255) 
 		base_array = None

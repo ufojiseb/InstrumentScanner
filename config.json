@@ -1,5 +1,16 @@
 {
 	"scores_directory": "scores",
+	"images_directory": "images",
+	"input_pdf_directory": "input",
+	"splitter_resolution": 200,
+	"group_number": 1,
+	"superimposed_index": 1,
+	"enhancing_method": "equalize",
+	"threshold_factor": 0.2,
+	"threshold_range_min": 50,
+	"threshold_range_max": 50,
+	"pixel_color": [237, 28, 36],
+	"paper_format": "A4",
 	"top_left_corner":		[0, 0],
-	"bottom_right_corner":	[0, 0]
+	"bottom_right_corner":	[1, 1]
 }
