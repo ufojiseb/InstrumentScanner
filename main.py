@@ -77,7 +77,7 @@ def main() -> None:
 
 	if "r" in options:
 		# Tries to find the two extreme red points in the superimposed image, and takes their coordinates
-		coords = find_coordinates("superimposed.png", Config.PIXEL_COLOR)
+		coords = find_coordinates("superimposed.png", Config.PIXEL_COLOR, Config.DEFAULT_TOP_LEFT_CORNER, Config.DEFAULT_BOTTOM_RIGHT_CORNER)
 
 		# Renames each group with the text found between the two extreme points
 		rename_groups(Config.IMAGES_DIRECTORY, Config.SUPERIMPOSED_INDEX, coords[0], coords[1])

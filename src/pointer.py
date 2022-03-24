@@ -5,15 +5,19 @@ from typing import List, Tuple
 from src.logger import Logger
 
 
-def find_coordinates(image: str, pixel_color: Tuple[int, int, int]) -> List[ Tuple[int, int] ]:
-	img = Image.open(image)
+def find_coordinates(image: str, pixel_color: Tuple[int, int, int], default_top_left_corner: Tuple[int, int], default_bottom_right_corner: Tuple[int, int]) -> List[ Tuple[int, int] ]:
+	try:
+		img = Image.open(image)
+	except FileNotFoundError:
+		Logger.error("Could not open superimposed image! Using default coordinates")
+		return [default_top_left_corner, default_bottom_right_corner]
+
 	img = img.convert("RGB")
+	width, heigth = img.size
+	coordinates = []
 
 	Logger.log(f"Finding points in the superimposed image...")
 
-	coordinates = []
-
-	width, heigth = img.size
 	for x in range(width):
 		for y in range(heigth):
 

@@ -16,8 +16,8 @@ class Config:
 	THRESHOLD_RANGE_MAX: int = 50
 	PIXEL_COLOR: Tuple[int, int, int] = (0, 0, 0)
 	PAPER_FORMAT: Literal[2] = ""
-	TOP_LEFT_CORNER: Tuple[int, int] = (0, 0)		# (x, y) coordinates of top left corner
-	BOTTOM_RIGHT_CORNER: Tuple[int, int] = (0, 0)	# (x, y) coordinates of bottom right corner
+	DEFAULT_TOP_LEFT_CORNER: Tuple[int, int] = (0, 0)		# (x, y) coordinates of top left corner
+	DEFAULT_BOTTOM_RIGHT_CORNER: Tuple[int, int] = (0, 0)	# (x, y) coordinates of bottom right corner
 	
 	@staticmethod
 	def load(config_path: str) -> None:
@@ -34,5 +34,5 @@ class Config:
 		Config.THRESHOLD_RANGE_MAX =	int(config["threshold_range_max"])
 		Config.PIXEL_COLOR =			tuple(config["pixel_color"])
 		Config.PAPER_FORMAT =			config["paper_format"]
-		Config.TOP_LEFT_CORNER = 		tuple( config["top_left_corner"] )
-		Config.BOTTOM_RIGHT_CORNER = 	tuple( config["bottom_right_corner"] )
+		Config.DEFAULT_TOP_LEFT_CORNER = 		tuple( config["default_top_left_corner"] )
+		Config.DEFAULT_BOTTOM_RIGHT_CORNER = 	tuple( config["default_bottom_right_corner"] )
