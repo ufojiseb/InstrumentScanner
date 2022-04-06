@@ -38,7 +38,7 @@ def rename_groups(images_dir: str, crop_page: int, top_left_corner: Tuple[int, i
 		try:
 			os.rename(d, group_name)
 			Logger.log(f'Renamed "{d}" >>> "{group_name}"')
-		except FileExistsError:
+		except (OSError, FileExistsError):  #On linux it raises OSError instead of FileExistsError
 			Logger.error(f'Could not rename "{d}" >>> "{group_name}" (directory already exists)')
 		except FileNotFoundError:
 			Logger.error(f'Could not rename "{d}" >>> "{group_name}" (origin directory not found)')
