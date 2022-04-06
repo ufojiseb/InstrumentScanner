@@ -29,7 +29,12 @@ class Enhancer:
 		Logger.log(f"Enhancing images...")
 
 		# a list of all the files in the specified direcrtory
-		files = [join(images_dir, f) for f in os.listdir(images_dir) if isfile( join(images_dir, f) )]
+		files = []
+		for f in os.listdir(images_dir):
+			file_path = join(images_dir, f)
+			
+			if isfile(file_path) and file_path.endswith((".jpg", ".jpeg", ".png")):
+				files.append(file_path)
 
 		for f in files:
 			Enhancer.enhance(f, mode)
